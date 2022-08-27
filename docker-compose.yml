@@ -1,0 +1,17 @@
+version: "3"
+
+services:
+  network-discovery:
+    build:
+      context: ./docker
+      dockerfile: Dockerfile
+      args:
+        GROUPID: 20001
+        http_proxy:
+        https_proxy:
+    image: nmap-network-discovery:1.0
+    # command: bash...
+    # volumes:
+    #   -
+    # environment:
+    #   - OUTPUTFOLDER=another_value
