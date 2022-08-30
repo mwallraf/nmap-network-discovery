@@ -1,6 +1,6 @@
 FROM kalilinux/kali-rolling
 
-RUN apt-get update && apt-get upgrade -y && apt-get -y install nmap masscan
+RUN apt-get update && apt-get upgrade -y && apt-get -y install nmap masscan python3-xmltodict
 
 COPY snmp-sysdetails.nse /usr/share/nmap/scripts/
 

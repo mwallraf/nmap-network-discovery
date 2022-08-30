@@ -1,2 +1,7 @@
 
 .env
+parsers/
+data.json
+nmap-output.xml
+pytest.py
+parse.sh
