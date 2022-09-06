@@ -69,6 +69,32 @@ local function process_walk_table( tbl, base_oid )
 end
 
 
+local function process_walk_table_ciena( tbl, base_oid )
+  local result = stdnse.output_table()
+  for _, v in ipairs( tbl ) do
+    if v.oid == string.format("%s.1.0", base_oid) and result["sysDescr"] == nil then
+      result.sysDescr = v.value
+    end    
+    if v.oid == string.format("%s.2.0", base_oid) and result["sysObjectId"] == nil then
+      result.sysObjectId = snmp.oid2str(v.value)
+    end
+    if v.oid == string.format("%s.3.0", base_oid) and result["sysUpTime"] == nil then
+      result.sysUpTime = string.format("%s (%s timeticks)", datetime.format_time(v.value, 100), tostring(v.value))
+    end
+    if v.oid == string.format("%s.4.0", base_oid) and result["sysContact"] == nil then
+      result.sysContact = v.value
+    end
+    if v.oid == string.format("%s.5.0", base_oid) and result["sysName"] == nil then
+      result.sysName = v.value
+    end
+    if v.oid == string.format("%s.6.0", base_oid) and result["sysLocation"] == nil then
+      result.sysLocation = v.value
+    end
+
+  end
+  return result
+end
+
 local function table_merge( t1, t2 )
   for _, v in ipairs(t2) do
     table.insert(t1, v)
@@ -89,6 +115,13 @@ action = function(host, port)
   local oidModel = "1.3.6.1.2.1.47.1.1.1.1.13.1"
   local oidSerial = "1.3.6.1.2.1.47.1.1.1.1.11.1"
   local oidSoftware = "1.3.6.1.2.1.47.1.1.1.1.10.1"
+
+  -- Ciena WWP
+  local oidCiena = "1.3.6.1.4.1.6141"
+  local oidCienaSerial = "1.3.6.1.4.1.6141.2.60.11.1.1.1.67.0"
+  local oidCienaChassisName = "1.3.6.1.4.1.6141.2.60.11.1.1.8.52.0"
+  local oidCienaChassisDescr = "1.3.6.1.4.1.6141.2.60.11.1.1.8.53.0"
+  local oidCienaRunSoftware = "1.3.6.1.4.1.6141.2.60.10.1.1.3.1.2.1"
 
   -- checks for arguments: snmp.timeout,snmp.version
   local snmp_timeout = stdnse.get_script_args({"snmp.timeout", "timeout"}) or 5000
@@ -112,8 +145,6 @@ action = function(host, port)
 
   -- since we got something back, the port is definitely open
   nmap.set_port_state(host, port, "open")
-
-
 
   -- physicalInfo -- serial
   snmpHelper:connect()
@@ -152,6 +183,48 @@ action = function(host, port)
     end
 
   end
+
+
+
+  -- ciena WWP
+  if (results and results.sysObjectId and results.sysObjectId:sub(1, #oidCiena) == oidCiena) then
+    snmpHelper:connect()
+    status, result = snmpHelper:get({}, oidCienaSerial)
+    if (status and result and result[1] and result[1][1]) then
+      results.physSerial = result[1][1]
+
+      -- physicalInfo -- software
+      snmpHelper:connect()
+      status, result = snmpHelper:get({}, oidCienaRunSoftware)
+      if (status and result and result[1] and result[1][1]) then
+        results.physSoftware = result[1][1]
+      end
+
+      -- physicalInfo -- model
+      --snmpHelper:connect()
+      --status, result = snmpHelper:get({}, oidModel)
+      --if (status and result and result[1] and result[1][1]) then
+      --  results.physModel = result[1][1]
+      --end
+
+      -- physicalInfo -- description
+      snmpHelper:connect()
+      status, result = snmpHelper:get({}, oidCienaChassisDescr)
+      if (status and result and result[1] and result[1][1]) then
+        results.physDescription = result[1][1]
+      end
+
+      -- physicalInfo -- name
+      snmpHelper:connect()
+      status, result = snmpHelper:get({}, oidCienaChassisName)
+      if (status and result and result[1] and result[1][1]) then
+        results.physName = result[1][1]
+      end
+
+    end
+  end
+
+
 
   return results
 end

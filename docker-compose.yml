@@ -9,7 +9,7 @@ services:
         GROUPID: 20001
         http_proxy: ${http_proxy:-}
         https_proxy: ${https_proxy:-}
-    image: mwallraf/nmap-network-discovery:1.0
+    image: mwallraf/nmap-network-discovery:1.1
     # command: bash...
     # volumes:
     #   -

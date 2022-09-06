@@ -7,7 +7,7 @@ Kali-based Docker image with nmap and masscan with a custom NSE script for addit
 Either build the image locally or pull from Docker hub.
 
 ```
-docker pull mwallraf/nmap-network-discovery:1.0
+docker pull mwallraf/nmap-network-discovery:1.1
 ```
 
 or
@@ -19,7 +19,7 @@ docker-compose build
 or
 
 ```
-cd Docker && docker build . --tag mwallraf/nmap-network-discovery:1.0
+cd Docker && docker build . --tag mwallraf/nmap-network-discovery:1.1
 ```
 
 # NSE SCRIPT: snmp-sysdetails
@@ -40,12 +40,12 @@ If you also want to do SNMP discovery then it's best to map a file with valid co
 
 Network discovery based on telnet + SSH ports. Get additional port info about telnet, ssh, bgp and try to poll some SNMP system details. The output will be saved to XML and GREP format.
 
-    docker run -it --rm -v $(pwd)/communities:/tmp/communities mwallraf/nmap-network-discovery:1.0 -n -PS22,23 -sU -sS -pT:22,23,179,U:161 -T5 --script snmp-brute,snmp-sysdetails,snmp-info --script-args snmp-brute.communitiesdb=/tmp/communities.txt,snmp.timeout=3000 192.168.1.0/24 -oX /tmp/nmap-out.xml -oG /tmp/nmap-out.grep
+    docker run -it --rm -v $(pwd)/communities:/tmp/communities mwallraf/nmap-network-discovery:1.1 -n -PS22,23 -sU -sS -pT:22,23,179,U:161 -T5 --script snmp-brute,snmp-sysdetails,snmp-info --script-args snmp-brute.communitiesdb=/tmp/communities.txt,snmp.timeout=3000 192.168.1.0/24 -oX /tmp/nmap-out.xml -oG /tmp/nmap-out.grep
 
 Connect to the docker shell.
 
-    docker run -it --rm --entrypoint=bash --rm mwallraf/nmap-network-discovery:1.0
+    docker run -it --rm --entrypoint=bash --rm mwallraf/nmap-network-discovery:1.1
 
 Run masscan discovery instead of nmap.
 
-    docker run -it --rm --entrypoint=masscan mwallraf/nmap-network-discovery:1.0 -p22,23 192.168.100.0/24
+    docker run -it --rm --entrypoint=masscan mwallraf/nmap-network-discovery:1.1 -p22,23 192.168.100.0/24
