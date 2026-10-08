@@ -11,7 +11,7 @@ ARG GROUPID=20001
 
 ENV OUTPUTFOLDER=/app/output 
 
-RUN addgroup --gid $GROUPID app && usermod --append --groups app root
+RUN groupadd --gid $GROUPID app && usermod --append --groups app root
 
 RUN mkdir -p /app && chown -R root:app /app && chmod -R 775 /app
 
