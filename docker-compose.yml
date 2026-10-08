@@ -1,17 +1,29 @@
-version: "3"
+# Usage (the image runs nmap; everything after the service name goes to nmap):
+#
+#   docker compose run --rm network-discovery <nmap arguments>
+#   docker compose run --rm --entrypoint masscan network-discovery <masscan arguments>
+#   docker compose run --rm --entrypoint bash network-discovery
+#
+# Files in ./input are available read-only as /app/input (community list,
+# target list, ...). Write results to /app/output to find them in ./output.
+#
+# The image is pulled from GitHub Container Registry the first time; use
+# "docker compose build" to build it locally instead. Settings can be
+# overridden in a .env file, see .env.example.
 
 services:
   network-discovery:
+    image: ${NMAP_DISCOVERY_IMAGE:-ghcr.io/mwallraf/nmap-network-discovery}:${NMAP_DISCOVERY_TAG:-latest}
+    pull_policy: missing
     build:
       context: ./docker
-      dockerfile: Dockerfile
       args:
-        GROUPID: 20001
+        GROUPID: ${GROUPID:-20001}
         http_proxy: ${http_proxy:-}
         https_proxy: ${https_proxy:-}
-    image: mwallraf/nmap-network-discovery:1.1
-    # command: bash...
-    # volumes:
-    #   -
-    # environment:
-    #   - OUTPUTFOLDER=another_value
+    volumes:
+      - ./input:/app/input:ro
+      - ./output:/app/output
+    # Scanning the local LAN works better without Docker's NAT (ARP host
+    # discovery, real source address). Linux only:
+    # network_mode: host
