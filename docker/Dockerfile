@@ -1,14 +1,17 @@
 FROM kalilinux/kali-rolling
 
+# Install CA certificates
+RUN apt-get update && apt-get install -y ca-certificates
+
 RUN apt-get update && apt-get upgrade -y && apt-get -y install nmap masscan
 
-COPY snmp-sysdetails.nse /usr/share/nmap/scripts/
+COPY snmp-*.nse /usr/share/nmap/scripts/
 
 ARG GROUPID=20001
 
 ENV OUTPUTFOLDER=/app/output 
 
-RUN addgroup --gid $GROUPID app && usermod --append --groups app root
+RUN groupadd --gid $GROUPID app && usermod --append --groups app root
 
 RUN mkdir -p /app && chown -R root:app /app && chmod -R 775 /app
 
